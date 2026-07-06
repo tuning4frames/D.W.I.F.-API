@@ -1,0 +1,7 @@
+node_modules/
+release/
+vendor/
+npm-debug.log*
+.env
+.env.local
+!.env.example

@@ -1,0 +1,23 @@
+{
+  "name": "dwif-api",
+  "version": "1.0.0",
+  "description": "Public HTTP API for D.W.I.F. image processing.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test",
+    "pm2:start": "pm2 start ecosystem.config.cjs"
+  },
+  "dependencies": {
+    "gifenc": "^1.0.3",
+    "node-webpmux": "^3.2.1",
+    "sharp": "^0.33.5"
+  },
+  "allowScripts": {
+    "sharp@0.33.5": true
+  }
+}
