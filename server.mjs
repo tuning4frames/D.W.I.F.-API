@@ -6,6 +6,12 @@ import { cleanupTempArtifacts, parseApiRequest, processRemoteImage } from "./lib
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number.parseInt(process.env.PORT || "3000", 10);
 
+const ROUTE_PREFIX = (() => {
+  const p = process.env.ROUTE_PREFIX || "";
+  if (!p) return "";
+  return "/" + p.replace(/^\/|\/$/g, "");
+})();
+
 function sendText(response, statusCode, message) {
   response.writeHead(statusCode, {
     "Content-Type": "text/plain; charset=utf-8",
@@ -81,19 +87,23 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  if (request.method !== "GET") {
+  if (request.method !== "GET" && request.method !== "HEAD") {
     sendText(response, 405, "Method not allowed.");
     return;
   }
 
   const requestUrl = new URL(request.url, `http://${request.headers.host || "localhost"}`);
 
-  if (requestUrl.pathname === "/api/health") {
+  const path = ROUTE_PREFIX && requestUrl.pathname.startsWith(ROUTE_PREFIX)
+    ? requestUrl.pathname.slice(ROUTE_PREFIX.length) || "/"
+    : requestUrl.pathname;
+
+  if (path === "/api/health") {
     sendText(response, 200, "ok");
     return;
   }
 
-  if (requestUrl.pathname === "/api/process") {
+  if (path === "/api/process" || path.startsWith("/api/process.")) {
     await handleProcess(response, requestUrl);
     return;
   }

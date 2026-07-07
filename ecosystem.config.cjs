@@ -6,7 +6,8 @@ module.exports = {
       interpreter: "node",
       env: {
         HOST: "0.0.0.0",
-        PORT: "3000"
+        PORT: "8867",
+        ROUTE_PREFIX: "/dwif"
       }
     }
   ]
