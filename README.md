@@ -26,8 +26,9 @@
 
 ## Features
 
-- `GET /api/process?url=...`
+- `GET /api/process?url=...` (also at `/api/process.gif` for Discord/animated GIF embeds)
 - `GET /api/health`
+- `HEAD /api/process` for link-preview services
 - PNG, WEBP, and GIF input/output
 - optional `topStrip` and `radius` query params
 - optional `gifEncoder=gifenc|gifski` for GIF output mode
@@ -82,6 +83,12 @@ Inline/embeddable image response:
 curl -o fixed.png "http://127.0.0.1:3000/api/process?url=https://placehold.co/512x512.png"
 ```
 
+Discord animated GIF embed (use `/api/process.gif` so Discord recognises it as a GIF):
+
+```bash
+curl -o fixed.gif "http://127.0.0.1:3000/api/process.gif?url=https://example.com/animation.gif"
+```
+
 Force download with server-suggested filename:
 
 ```bash
@@ -106,6 +113,7 @@ cp .env.example .env
 
 - `HOST` default `0.0.0.0`
 - `PORT` default `3000`
+- `ROUTE_PREFIX` optional URL path prefix for reverse proxy (e.g. `/dwif` strips `/dwif` from incoming paths before routing)
 - `DWIF_FETCH_TIMEOUT_MS` default `10000`
 - `DWIF_MAX_DOWNLOAD_BYTES` default `10485760`
 
