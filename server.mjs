@@ -154,19 +154,25 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (path === "/api/process" || path.startsWith("/api/process.")) {
-    if (request.method !== "HEAD") {
-      const isGifski = requestUrl.searchParams.get("gifEncoder") === "gifski";
-      const ip = getClientIP(request);
-      const { allowed, retryAfter } = checkRateLimit(ip, isGifski);
-      if (!allowed) {
-        response.writeHead(429, {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Retry-After": String(retryAfter),
-          "Cache-Control": "no-store"
-        });
-        response.end(`Rate limited. Try again in ${retryAfter} seconds.`);
-        return;
-      }
+    if (request.method === "HEAD") {
+      response.writeHead(200, {
+        "Content-Type": "image/gif",
+        "Cache-Control": "no-store"
+      });
+      response.end();
+      return;
+    }
+    const isGifski = requestUrl.searchParams.get("gifEncoder") === "gifski";
+    const ip = getClientIP(request);
+    const { allowed, retryAfter } = checkRateLimit(ip, isGifski);
+    if (!allowed) {
+      response.writeHead(429, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Retry-After": String(retryAfter),
+        "Cache-Control": "no-store"
+      });
+      response.end(`Rate limited. Try again in ${retryAfter} seconds.`);
+      return;
     }
     await handleProcess(response, requestUrl);
     return;
