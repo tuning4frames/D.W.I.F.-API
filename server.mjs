@@ -12,6 +12,56 @@ const ROUTE_PREFIX = (() => {
   return "/" + p.replace(/^\/|\/$/g, "");
 })();
 
+const RATE_LIMIT_WINDOW = Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000", 10);
+const RATE_LIMIT_MAX = Number.parseInt(process.env.RATE_LIMIT_MAX || "5", 10);
+const RATE_LIMIT_MAX_GIFSKI = Number.parseInt(process.env.RATE_LIMIT_MAX_GIFSKI || "1", 10);
+
+const ipHits = new Map();
+
+function getClientIP(request) {
+  return request.headers["cf-connecting-ip"]
+    || (request.headers["x-forwarded-for"] || "").split(",")[0]?.trim()
+    || request.socket.remoteAddress
+    || "unknown";
+}
+
+function checkRateLimit(ip, isGifski) {
+  const now = Date.now();
+  const maxHits = isGifski ? RATE_LIMIT_MAX_GIFSKI : RATE_LIMIT_MAX;
+
+  let hits = ipHits.get(ip);
+  if (!hits) {
+    hits = [];
+    ipHits.set(ip, hits);
+  }
+
+  const cutoff = now - RATE_LIMIT_WINDOW;
+  while (hits.length > 0 && hits[0] < cutoff) {
+    hits.shift();
+  }
+
+  if (hits.length >= maxHits) {
+    const oldest = hits[0];
+    const retryAfter = Math.ceil((oldest + RATE_LIMIT_WINDOW - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+
+  hits.push(now);
+  return { allowed: true };
+}
+
+setInterval(() => {
+  const cutoff = Date.now() - RATE_LIMIT_WINDOW;
+  for (const [ip, hits] of ipHits) {
+    while (hits.length > 0 && hits[0] < cutoff) {
+      hits.shift();
+    }
+    if (hits.length === 0) {
+      ipHits.delete(ip);
+    }
+  }
+}, 60000);
+
 function sendText(response, statusCode, message) {
   response.writeHead(statusCode, {
     "Content-Type": "text/plain; charset=utf-8",
@@ -104,6 +154,18 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (path === "/api/process" || path.startsWith("/api/process.")) {
+    const isGifski = requestUrl.searchParams.get("gifEncoder") === "gifski";
+    const ip = getClientIP(request);
+    const { allowed, retryAfter } = checkRateLimit(ip, isGifski);
+    if (!allowed) {
+      response.writeHead(429, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Retry-After": String(retryAfter),
+        "Cache-Control": "no-store"
+      });
+      response.end(`Rate limited. Try again in ${retryAfter} seconds.`);
+      return;
+    }
     await handleProcess(response, requestUrl);
     return;
   }

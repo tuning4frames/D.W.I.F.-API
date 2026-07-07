@@ -35,6 +35,7 @@
 - optional `download=1` to force file download
 - inline/embeddable responses by default
 - server-suggested download filenames when `download=1`
+- per-IP rate limiting: 5 req/min normal, 1 req/min gifski (configurable)
 - lightweight response metadata headers for width, height, strip, radius, and animation state
 - high-quality Linux GIF output via `gifski` when requested
 - HTTPS-only remote sources by default
@@ -121,6 +122,14 @@ Local-test-only overrides:
 
 - `DWIF_ALLOW_PRIVATE_HOSTS=true`
 - `DWIF_ALLOW_INSECURE_SOURCE_URLS=true`
+
+Rate limit configuration:
+
+- `RATE_LIMIT_WINDOW_MS` default `60000` (1 minute window)
+- `RATE_LIMIT_MAX` default `5` (requests per window)
+- `RATE_LIMIT_MAX_GIFSKI` default `1` (gifski requests per window)
+
+Rate-limited responses return `429` with a `Retry-After` header.
 
 ## PM2
 
