@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/node-18%2B-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node 18+">
-  <img src="https://img.shields.io/badge/output-PNG%20%7C%20WEBP%20%7C%20GIF-8A2BE2?style=flat-square" alt="PNG, WEBP, and GIF output">
+  <img src="https://img.shields.io/badge/output-PNG%20%7C%20WEBP%20%7C%20AVIF%20%7C%20GIF-8A2BE2?style=flat-square" alt="PNG, WEBP, AVIF, and GIF output">
   <img src="https://img.shields.io/badge/embeds-inline-1f8b4c?style=flat-square" alt="Inline embeddable responses">
   <img src="https://img.shields.io/badge/gif-gifski%20optional-f59e0b?style=flat-square" alt="Optional gifski support">
 </p>
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  Small HTTP API for fetching remote images, applying the D.W.I.F transform, and returning processed PNG, WEBP, or GIF output.
+  Small HTTP API for fetching remote images, applying the D.W.I.F transform, and returning processed PNG, WEBP, AVIF, or GIF output.
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 - `GET /api/process?url=...` (also at `/api/process.gif` for Discord/animated GIF embeds)
 - `GET /api/health`
 - `HEAD /api/process` for link-preview services
-- PNG, WEBP, and GIF input/output
+- PNG, WEBP, AVIF, and GIF input/output
 - optional `topStrip` and `radius` query params
 - optional `gifEncoder=gifenc|gifski` for GIF output mode
 - optional `download=1` to force file download
